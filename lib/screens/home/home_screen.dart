@@ -5,7 +5,7 @@ import 'package:animate_do/animate_do.dart';
 
 import '../../core/theme.dart';
 import '../../core/routes.dart';
-import '../../core/constants.dart';
+import '../../core/constants.dart'; // Added MockData import
 import '../../providers/auth_provider.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/lawyer_card.dart';
@@ -27,10 +27,45 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   String _selectedSpecialty = AppConstants.legalSpecialties.first;
   late TabController _tabController;
 
+  // New state variables for filtered lists
+  List<Lawyer> _filteredLawyers = [];
+  List<Gig> _filteredGigs = [];
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+
+    // Initialize filtered lists with all mock data
+    _filteredLawyers.addAll(MockData.mockLawyers);
+    _filteredGigs.addAll(MockData.mockGigs);
+
+    // Add listener to search controller
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  // Method to handle search input changes
+  void _onSearchChanged() {
+    _filterContent(_searchController.text);
+  }
+
+  void _filterContent(String query) {
+    final lowerCaseQuery = query.toLowerCase();
+
+    setState(() {
+      // Filter lawyers
+      _filteredLawyers = MockData.mockLawyers.where((lawyer) {
+        final lawyerName = lawyer.name.toLowerCase();
+        return lawyerName.contains(lowerCaseQuery);
+      }).toList();
+
+      // Filter gigs
+      _filteredGigs = MockData.mockGigs.where((gig) {
+        final gigTitle = gig.title.toLowerCase();
+        final gigDescription = gig.description.toLowerCase();
+        return gigTitle.contains(lowerCaseQuery) || gigDescription.contains(lowerCaseQuery);
+      }).toList();
+    });
   }
 
   @override
@@ -159,9 +194,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                       ? 'Search by case title...'
                                       : 'Search by lawyer name...',
                                   prefixIcon: Icons.search_rounded,
-                                  onChanged: (value) {
-                                    // Handle search
-                                  },
+                                  onChanged: _filterContent, // Updated onChanged
                                 ),
                               ],
                             ),
@@ -307,9 +340,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 if (isLawyer) ...[
                   // Gigs for lawyers
                   SliverList.builder(
-                    itemCount: MockData.mockGigs.length,
+                    itemCount: _filteredGigs.length, // Changed to filtered list
                     itemBuilder: (context, index) {
-                      final gig = MockData.mockGigs[index];
+                      final gig = _filteredGigs[index]; // Changed to filtered list
                       return FadeInUp(
                         duration: const Duration(milliseconds: 600),
                         delay: Duration(milliseconds: 700 + (index * 100)),
@@ -320,7 +353,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           ),
                           child: GigCard(
                             gig: gig,
-                            onTap: () => context.go(
+                            onTap: () => context.push( // Changed go to push
                               AppRoutes.gigDetails,
                               extra: gig,
                             ),
@@ -332,9 +365,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ] else ...[
                   // Lawyers for clients
                   SliverList.builder(
-                    itemCount: MockData.mockLawyers.length,
+                    itemCount: _filteredLawyers.length, // Changed to filtered list
                     itemBuilder: (context, index) {
-                      final lawyer = MockData.mockLawyers[index];
+                      final lawyer = _filteredLawyers[index]; // Changed to filtered list
                       return FadeInUp(
                         duration: const Duration(milliseconds: 600),
                         delay: Duration(milliseconds: 700 + (index * 100)),
@@ -345,7 +378,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           ),
                           child: LawyerCard(
                             lawyer: lawyer,
-                            onTap: () => context.go(
+                            onTap: () => context.push( // Changed go to push
                               AppRoutes.lawyerDetails,
                               extra: lawyer,
                             ),
@@ -455,6 +488,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    _searchController.removeListener(_onSearchChanged); // Removed listener
     _searchController.dispose();
     _tabController.dispose();
     super.dispose();

@@ -1,0 +1,8 @@
+{
+  "name": "LegalLink - Lawyer Marketplace",
+  "description": "A high-end marketplace for legal gigs and case management with tiered subscriptions for junior and senior lawyers, featuring AI-powered case matching.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
