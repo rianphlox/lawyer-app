@@ -1,0 +1,68 @@
+# LegalLink App Implementation Status & Roadmap
+
+## Overview
+This document summarizes the current state of the LegalLink codebase compared to the project description. It highlights what is already built and what needs to be implemented to achieve the full business model.
+
+---
+
+## 1. Features Already Implemented (Matches Description)
+
+### Core Marketplace Infrastructure
+*   **User Roles:** Defined roles for `juniorLawyer`, `seniorLawyer`, and `client`.
+*   **Gig System:** Complete model and screen for posting, viewing, and managing legal gigs/cases.
+*   **Lawyer Profiles:** Verified profiles with experience, specialty, and ratings.
+*   **Messaging:** UI and models for real-time communication between lawyers and clients.
+*   **Application Tracking:** Basic structure for lawyers to apply to gigs and view their status.
+*   **AI Integration:** Floating AI assistant for legal queries or app navigation.
+
+### Visual & UX
+*   **Modern Design:** Clean, Material Design-inspired UI with smooth animations (animate_do).
+*   **Responsive Layout:** Navigation and scrolling optimized for mobile.
+
+---
+
+## 2. Features Missing or Partial (The "Work-to-Do" List)
+
+### [ ] Tiered Access & Subscriptions (Priority: High)
+*   **Task:** Implement logic to distinguish access between Junior and Senior lawyers based on experience.
+*   **Business Rule:** Lawyers with **5+ years of experience** must subscribe to a monthly plan. Lawyers with **less than 5 years** receive free access.
+*   **Missing:** No `Subscription` model or service.
+*   **Missing:** No logic to automatically categorize/gate lawyers based on the `experienceYears` field.
+*   **Missing:** No monthly billing integration for senior lawyers.
+
+### [ ] Admin Oversight System (Priority: Medium)
+*   **Task:** Create an admin role or dashboard to manage the platform.
+*   **Missing:** No screens for lawyer verification (reviewing documents).
+*   **Missing:** No moderation tools for job/gig posts.
+*   **Missing:** No platform-wide analytics for the admin.
+
+### [ ] Advanced Payment Logic (Priority: Medium)
+*   **Task:** Integrate recurring payments for subscriptions.
+*   **Missing:** Current payment system supports one-off transactions but not subscriptions.
+
+### [ ] Case Tracking & Document Management (Priority: Low)
+*   **Task:** Expand the "Active Cases" feature.
+*   **Missing:** File/document sharing within the chat or case details.
+*   **Missing:** Milestone-based tracking for case completion.
+
+---
+
+## 3. Recommended Step-by-Step Implementation
+
+1.  **Step 1: Subscription Model:** Create a `subscription.dart` model and a `SubscriptionProvider`.
+2.  **Step 2: Access Gating:** Update `HomeScreen` and `GigDetailsScreen` to check if a Senior Lawyer has an active subscription before allowing them to view/apply.
+3.  **Step 3: Billing Integration:** Connect the `PaymentProvider` to a mock or real payment gateway (like Stripe) for recurring monthly fees.
+4.  **Step 4: Admin Role:** Add `admin` to `UserRole` and create a simple protected route for platform moderation.
+5.  **Step 5: Document Support:** Enhance the chat/gig system to allow PDF uploads for legal documents.
+
+---
+
+## 4. Strategic Considerations: Why Junior Lawyers Should Pay (For Client Discussion)
+
+While offering free access to junior lawyers (<5 years) encourages growth, there are strong arguments for charging them a nominal fee (e.g., "Early Career Tier"):
+
+1.  **Commitment & Quality Control:** A small fee (even $5-10/month) filters out casual or inactive users, ensuring that the "Junior" pool consists of serious professionals who are actively looking for work.
+2.  **Perceived Value:** People often undervalue what they get for free. Paying a small amount can make them take the platform and the opportunities it provides more seriously.
+3.  **Identity Verification Cost:** Verifying a lawyer's credentials (bar status, background checks) costs money. A nominal fee can help cover these administrative overheads.
+4.  **Habit Formation:** Getting users used to a payment workflow early on makes it easier to upsell them to a premium tier later as their career advances, rather than facing a "paywall shock" at the 5-year mark.
+5.  **Revenue Diversification:** If the platform attracts thousands of junior lawyers, even a small fee adds up to significant operational revenue that can be reinvested into marketing to find them more clients.
