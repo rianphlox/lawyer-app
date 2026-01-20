@@ -1,0 +1,198 @@
+LegalLink User Flow Diagram (Mermaid.js Format)
+================================================
+
+Copy the content below and use it with Claude Code or any Mermaid.js renderer:
+
+```mermaid
+graph TB
+    Start(["User Visits LegalLink"]) --> Auth{"Already<br/>Registered?"}
+    
+    Auth -->|"No"| SignUp["Sign Up"]
+    Auth -->|"Yes"| Login["Login"]
+    
+    SignUp --> RoleSelect{"Select Role"}
+    Login --> RoleSelect
+    
+    RoleSelect -->|"Client"| ClientFlow["Client Dashboard"]
+    RoleSelect -->|"Lawyer"| LawyerVerify["Submit Credentials<br/>for Verification"]
+    
+    LawyerVerify --> VerifyWait{"Admin<br/>Approval"}
+    VerifyWait -->|"Approved"| LawyerFlow["Lawyer Dashboard"]
+    VerifyWait -->|"Rejected"| LawyerVerify
+    
+    %% CLIENT FLOW
+    ClientFlow --> ClientChoice{"Choose Action"}
+    
+    ClientChoice -->|"Post a Gig"| PostGig["Create Gig Post<br/>Title, Description,<br/>Budget, Timeline"]
+    ClientChoice -->|"Search Lawyers"| SearchLawyer["Browse Lawyer<br/>Profiles & Filter"]
+    
+    PostGig --> WaitApps["Receive Applications<br/>from Lawyers"]
+    SearchLawyer --> ViewProfile["View Lawyer Profile<br/>Reviews & Ratings"]
+    
+    WaitApps --> ReviewApps["Review Applications<br/>& Chat with Lawyers"]
+    ViewProfile --> ContactLawyer["Chat with Lawyer"]
+    
+    ReviewApps --> HireLawyer["Select & Hire Lawyer"]
+    ContactLawyer --> HireLawyer
+    
+    HireLawyer --> FundEscrow["Fund Escrow Account<br/>Secure Payment"]
+    
+    FundEscrow --> Collab["Case Collaboration:<br/>- Secure Messaging<br/>- Document Sharing<br/>- Track Milestones"]
+    
+    Collab --> ReviewWork{"Work<br/>Complete?"}
+    ReviewWork -->|"No"| Collab
+    ReviewWork -->|"Issue"| Dispute["Open Dispute"]
+    ReviewWork -->|"Yes"| ApproveMilestone["Approve Milestone"]
+    
+    ApproveMilestone --> ReleaseEscrow["Release Escrow Funds<br/>to Lawyer"]
+    ReleaseEscrow --> LeaveReview["Rate & Review Lawyer"]
+    
+    Dispute --> DisputeRes["Admin Reviews Dispute"]
+    DisputeRes --> Resolution{"Resolution"}
+    Resolution -->|"Favor Client"| RefundClient["Refund to Client"]
+    Resolution -->|"Favor Lawyer"| PayLawyer["Pay Lawyer"]
+    
+    LeaveReview --> ClientEnd(["Case Closed"])
+    RefundClient --> ClientEnd
+    
+    %% LAWYER FLOW
+    LawyerFlow --> LawyerChoice{"Choose Action"}
+    
+    LawyerChoice -->|"Browse Gigs"| BrowseGigs["Search Available<br/>Client Gigs"]
+    LawyerChoice -->|"Upgrade Plan"| Subscribe["Subscribe to<br/>Pro Plan"]
+    LawyerChoice -->|"Answer Q&A"| QAForum["Answer Public<br/>Legal Questions"]
+    
+    BrowseGigs --> SubmitProposal["Submit Proposal<br/>& Application"]
+    
+    SubmitProposal --> WaitHire{"Hired?"}
+    WaitHire -->|"No"| BrowseGigs
+    WaitHire -->|"Yes"| Hired["Client Hires You<br/>Case Created"]
+    
+    Hired --> SetMilestones["Define Project<br/>Milestones"]
+    
+    SetMilestones --> WorkCase["Work on Case:<br/>- Communicate<br/>- Share Documents<br/>- Update Progress"]
+    
+    WorkCase --> CompleteMilestone["Complete Milestone<br/>Request Approval"]
+    
+    CompleteMilestone --> ClientApprove{"Client<br/>Approves?"}
+    ClientApprove -->|"No"| DisputeL["Handle Dispute"]
+    ClientApprove -->|"Yes"| ReceivePayment["Receive Payment<br/>from Escrow"]
+    
+    DisputeL --> DisputeRes
+    PayLawyer --> ReceivePayment
+    
+    ReceivePayment --> MoreMilestones{"More<br/>Milestones?"}
+    MoreMilestones -->|"Yes"| WorkCase
+    MoreMilestones -->|"No"| ProjectComplete["Project Complete"]
+    
+    ProjectComplete --> ManageEarnings["View Earnings<br/>Dashboard"]
+    ManageEarnings --> Withdraw["Withdraw to<br/>Bank Account"]
+    
+    Subscribe --> LawyerFlow
+    QAForum --> LawyerFlow
+    Withdraw --> LawyerEnd(["Continue Working"])
+    LawyerEnd --> LawyerChoice
+    
+    %% Styling (optional)
+    style Start fill:#e1f5e1
+    style ClientEnd fill:#ffe1e1
+    style LawyerEnd fill:#e1e1ff
+    style FundEscrow fill:#fff4e1
+    style ReleaseEscrow fill:#fff4e1
+    style Dispute fill:#ffe1e1
+    style DisputeL fill:#ffe1e1
+```
+
+================================================
+USER FLOW SUMMARY (Text Description)
+================================================
+
+CLIENT JOURNEY:
+---------------
+1. Entry Point
+   - User visits LegalLink
+   - Sign up or Login
+   - Select "Client" role
+
+2. Finding Legal Help (Two Paths)
+   Path A: Post a Gig
+   - Create gig post (title, description, budget, timeline)
+   - Receive applications from lawyers
+   - Review applications and chat with lawyers
+   
+   Path B: Search for Lawyers
+   - Browse lawyer profiles with filters
+   - View profiles, reviews, and ratings
+   - Contact lawyer via chat
+
+3. Hiring & Payment
+   - Select and hire lawyer
+   - Fund escrow account with agreed amount (SECURE PAYMENT)
+
+4. Case Collaboration
+   - Secure messaging with lawyer
+   - Document sharing
+   - Track milestones
+
+5. Project Completion
+   - Review completed work
+   - If satisfied: Approve milestone → Release escrow funds → Rate & review
+   - If issue: Open dispute → Admin reviews → Resolution (refund or pay lawyer)
+
+6. End: Case closed
+
+
+LAWYER JOURNEY:
+---------------
+1. Entry Point
+   - User visits LegalLink
+   - Sign up or Login
+   - Select "Lawyer" role
+   - Submit credentials for verification
+   - Wait for admin approval
+
+2. Finding Work
+   - Browse available client gigs
+   - Submit proposals and applications
+   - Optional: Subscribe to Pro plan for better visibility
+   - Optional: Answer public Q&A questions to build reputation
+
+3. Getting Hired
+   - Wait for client to hire
+   - Once hired, case is created
+   - Define project milestones
+
+4. Case Work
+   - Communicate with client
+   - Share documents
+   - Update progress
+   - Complete milestones
+
+5. Payment & Approval
+   - Request client approval for completed milestone
+   - If approved: Receive payment from escrow
+   - If disputed: Handle dispute → Admin resolution
+   - Repeat for multiple milestones
+
+6. Financial Management
+   - View earnings dashboard
+   - Withdraw funds to bank account
+
+7. Continue: Return to finding more work
+
+
+KEY FEATURES ILLUSTRATED:
+-------------------------
+✓ Role-based authentication (Client vs Lawyer)
+✓ Lawyer credential verification by admin
+✓ Two-way gig discovery (post or search)
+✓ Secure escrow payment system
+✓ Milestone-based project management
+✓ In-app messaging and document sharing
+✓ Dispute resolution mechanism
+✓ Rating and review system
+✓ Subscription plans for lawyers
+✓ Earnings dashboard and payout system
+✓ Q&A forum for reputation building
+
+================================================

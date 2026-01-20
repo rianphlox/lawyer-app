@@ -1,0 +1,207 @@
+# LegalLink: Full-Scale App Roadmap & Architecture
+
+This document outlines the complete vision, structure, processes, and technical design for building a full-scale LegalLink application.
+
+---
+
+### I. Project Vision
+
+To create a trusted, full-featured online marketplace that seamlessly connects clients with legal professionals, facilitating communication, secure payments, and case management from start to finish.
+
+---
+
+### II. Core User Roles & Flows (The Processes)
+
+This section represents the "diagram" of user journeys through the platform.
+
+#### A. The Client Journey
+
+1.  **Onboarding & Account Creation:**
+    *   Signs up via email/password or social providers.
+    *   Completes a simple profile.
+
+2.  **Finding Legal Help (Two Paths):**
+    *   **Path 1 (Post a Gig):** Submits a detailed description of their legal need, including budget and timeline.
+    *   **Path 2 (Search for a Lawyer):** Browses lawyer profiles, filters by specialty, location, and rating.
+
+3.  **Hiring & Payment:**
+    *   Receives applications/bids from lawyers on their posted gig.
+    *   Reviews lawyer profiles and chat with them.
+    *   Hires a lawyer for the gig.
+    *   **Funds an Escrow Account:** Deposits the agreed-upon amount for the gig into a secure escrow.
+
+4.  **Case Collaboration:**
+    *   Communicates with the lawyer via secure in-app messaging.
+    *   Uploads/shares necessary documents through a secure vault.
+    *   Tracks progress via milestones set by the lawyer.
+
+5.  **Project Completion & Finalization:**
+    *   Approves completed milestones.
+    *   **Releases Escrow Funds** to the lawyer upon final project completion.
+    *   **Leaves a Rating & Review** for the lawyer.
+
+#### B. The Lawyer Journey
+
+1.  **Onboarding & Verification:**
+    *   Signs up and selects the "Lawyer" role.
+    *   Submits profile details (specialty, experience, bio).
+    *   **Submits Credentials for Verification** (e.g., bar license). Admin approves.
+
+2.  **Finding Work & Building Reputation:**
+    *   Browses client-posted gigs.
+    *   Submits proposals/applications for gigs.
+    *   (Optional) Answers public questions in a Q&A forum to build credibility.
+    *   (Optional) Subscribes to a "Pro" plan for better visibility or more applications.
+
+3.  **Getting Hired & Case Management:**
+    *   Gets hired by a client. A new case is created.
+    *   Defines project milestones and deliverables for the client.
+
+4.  **Collaboration & Payment:**
+    *   Communicates with the client and shares documents.
+    *   Requests client approval as milestones are completed.
+    *   **Receives Payment** from the released escrow funds.
+
+5.  **Managing Finances:**
+    *   Tracks earnings on a dashboard.
+    *   Configures a payout account.
+    *   **Withdraws Funds** to their bank account.
+
+---
+
+### III. Feature Roadmap (Phased Approach)
+
+#### Phase 1: MVP Core (Largely Complete)
+*   User Authentication (Client/Lawyer Roles)
+*   Lawyer Profiles
+*   Gig Posting & Browsing
+*   In-App Messaging
+*   Review & Rating System
+*   Basic Search
+
+#### Phase 2: Commercialization & Trust (Crucial Next Steps)
+*   **Subscription Engine:** Implement subscription plans for lawyers.
+*   **Payment Gateway & Escrow:** Integrate with Stripe Connect or a similar provider to handle escrow payments.
+*   **Payout System:** Allow lawyers to configure accounts and withdraw earnings.
+*   **Admin Verification:** A backend process for admins to approve/deny lawyer credentials.
+*   **Dispute Resolution System:** A basic ticketing system for handling conflicts.
+
+#### Phase 3: Engagement & Retention
+*   **Lawyer Dashboard & Analytics:** Show profile views, success rates, earnings charts.
+*   **Appointment/Consultation Booking:** A calendar system for paid consultations.
+*   **Public Q&A Forum:** A community feature for lawyers to answer public questions.
+*   **Saved/Bookmarked Lawyers:** Allow clients to shortlist professionals.
+
+#### Phase 4: Advanced Professional Tools
+*   **Secure Document Vault:** A dedicated, encrypted space for file sharing per case.
+*   **Advanced Milestone Tracking:** UI for clients and lawyers to manage complex project deliverables.
+*   **Blog/Article Platform:** Allow verified lawyers to publish content.
+
+---
+
+### IV. Proposed Application Architecture
+
+*   **Frontend:** Flutter App (for iOS, Android, and potentially Web)
+*   **Backend:** Serverless via Firebase
+*   **State Management:** Provider (as currently implemented)
+*   **Core Firebase Services:**
+    *   **Authentication:** Manages user sign-up and login.
+    *   **Firestore:** The primary NoSQL database for all app data.
+    *   **Storage:** For user-uploaded files (profile pictures, case documents, credentials).
+    *   **Cloud Functions:** **This is critical for a full-scale app.** Used to run trusted backend code for:
+        *   Interacting with payment gateways (Stripe, PayPal).
+        *   Managing subscription status changes.
+        *   Sending notifications (push and email).
+        *   Handling automated tasks like escrow releases or dispute escalations.
+
+---
+
+### V. Firestore Database Schema (Text Diagram)
+
+```
+// (C) = Collection, (D) = Document
+
+(C) users
+    (D) {userId}
+        - name: "John Doe"
+        - email: "user@example.com"
+        - role: "client" | "lawyer"
+        - profileImageUrl: "url_to_storage"
+        - createdAt: Timestamp
+        - lawyerDetails: { (if role is lawyer)
+            - specialty: "Corporate Law"
+            - bio: "..."
+            - isVerified: true
+            - subscriptionId: "sub_123" (links to subscriptions collection)
+        }
+
+(C) gigs
+    (D) {gigId}
+        - clientId: "{userId}"
+        - title: "Need help with a business contract"
+        - description: "..."
+        - budget: 500
+        - status: "open" | "in_progress" | "completed" | "disputed"
+        - createdAt: Timestamp
+        - hiredLawyerId: "{userId}" (null until filled)
+
+(C) applications
+    (D) {applicationId}
+        - gigId: "{gigId}"
+        - lawyerId: "{userId}"
+        - proposal: "I am the best for this job because..."
+        - status: "pending" | "accepted" | "rejected"
+        - createdAt: Timestamp
+
+(C) reviews
+    (D) {reviewId}
+        - gigId: "{gigId}"
+        - reviewerId: "{userId}" (client)
+        - revieweeId: "{userId}" (lawyer)
+        - rating: 5
+        - comment: "Excellent work!"
+        - createdAt: Timestamp
+
+(C) chats
+    (D) {chatId} (e.g., "userId1_userId2")
+        - participantIds: ["userId1", "userId2"]
+        - lastMessage: "See you then!"
+        - lastMessageTimestamp: Timestamp
+        - (C) messages
+            (D) {messageId}
+                - senderId: "{userId}"
+                - text: "Hello!"
+                - imageUrl: (optional)
+                - timestamp: Timestamp
+
+// --- Collections for Full-Scale Features ---
+
+(C) subscriptions
+    (D) {subscriptionId}
+        - lawyerId: "{userId}"
+        - plan: "pro" | "basic"
+        - status: "active" | "canceled"
+        - expiresAt: Timestamp
+        - stripeSubscriptionId: "stripe_sub_id"
+
+(C) transactions
+    (D) {transactionId}
+        - type: "escrow_funding" | "payout" | "subscription_fee"
+        - amount: 500.00
+        - currency: "USD"
+        - fromUserId: "{userId}"
+        - toUserId: "{userId}" | "platform"
+        - status: "pending" | "succeeded" | "failed"
+        - gigId: "{gigId}" (if applicable)
+        - createdAt: Timestamp
+        - stripeChargeId: "stripe_charge_id"
+
+(C) disputes
+    (D) {disputeId}
+        - gigId: "{gigId}"
+        - claimantId: "{userId}"
+        - defendantId: "{userId}"
+        - reason: "Work was not completed as described."
+        - status: "open" | "under_review" | "resolved"
+        - resolution: (optional text)
+```
